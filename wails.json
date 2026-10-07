@@ -1,0 +1,24 @@
+{
+  "$schema": "https://wails.io/schemas/config.v2.json",
+  "name": "desktop-shell",
+  "outputfilename": "desktop-shell",
+  "frontend:dir": "frontend",
+  "frontend:install": "",
+  "frontend:build": "",
+  "frontend:dev:install": "",
+  "frontend:dev:build": "",
+  "frontend:dev:watcher": "",
+  "frontend:dev:serverUrl": "",
+  "build:tags": "webkit2_41",
+  "author": {
+    "name": "desktop-shell",
+    "email": "desktop-shell@localhost"
+  },
+  "info": {
+    "companyName": "desktop-shell",
+    "productName": "Desktop",
+    "productVersion": "0.1.0",
+    "copyright": "",
+    "comments": "Local first frame for a remote Datastar server"
+  }
+}

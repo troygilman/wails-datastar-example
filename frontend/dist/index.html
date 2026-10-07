@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Desktop</title>
+  <link rel="stylesheet" href="shell.css">
+  <!-- datastar.js v1.0.4, vendored. No CDN. -->
+  <script type="module" src="datastar.js"></script>
+</head>
+<body
+  data-signals="{ready: false, phase: 'connecting', api: '', status: 'Connecting...'}"
+  data-on:desktop-session__document="
+    $api = evt.detail.apiBase;
+    if (!evt.detail.hasToken) {
+      $phase = 'signed-out';
+      $status = 'Paste a token to continue.';
+    } else {
+      $phase = 'connecting';
+      $status = 'Connecting...';
+      @get(evt.detail.apiBase + '/desktop/bootstrap', desktop.bootstrapOptions())
+    }
+  "
+  data-on:desktop-connect__document="
+    if (!desktop.token) {
+      $phase = 'signed-out';
+      $status = 'Paste a token to continue.';
+    } else {
+      $ready = false;
+      $phase = 'connecting';
+      $status = 'Connecting...';
+      @get($api + '/desktop/bootstrap', desktop.bootstrapOptions())
+    }
+  "
+  data-on:desktop-fault__document="
+    $ready = false;
+    $phase = evt.detail.phase || 'offline';
+    $status = evt.detail.message;
+  "
+  data-on:datastar-fetch="
+    if (evt.detail.type === 'error' && evt.detail.argsRaw && evt.detail.argsRaw.status === '401') {
+      $ready = false;
+      $phase = 'signed-out';
+      $status = 'Signed out. Paste a token to continue.';
+    }
+    if (evt.detail.type === 'retrying' && !$ready) {
+      $status = 'Still trying to reach the server...';
+    }
+    if (evt.detail.type === 'retries-failed' && !$ready) {
+      $phase = 'offline';
+      $status = 'Cannot reach the server.';
+    }
+  "
+>
+  <!--
+    First paint is this file. Session() fills api; the token stays on window.desktop.
+    GET {api}/desktop/bootstrap patches #app and sets ready. It does not create the page.
+    Later actions use $api and desktop.headers().
+  -->
+  <header id="shell-bar" data-show="!$ready">
+    <p id="shell-status" data-text="$status">Connecting...</p>
+    <form id="shell-signin" style="display: none" data-show="$phase === 'signed-out'" data-on:submit="desktop.save(evt.target.elements.token.value)">
+      <label for="shell-token">Token</label>
+      <input id="shell-token" name="token" type="password" autocomplete="off" spellcheck="false">
+      <button type="submit">Save token</button>
+    </form>
+    <button id="shell-retry" type="button" style="display: none" data-show="$phase === 'offline'" data-on:click="desktop.connect()">Retry</button>
+  </header>
+  <div id="app">
+    <section id="panel-main">
+      <p id="panel-main-note">Waiting for the server.</p>
+    </section>
+    <aside id="panel-side">
+      <p id="panel-side-note">This panel fills in from the server.</p>
+    </aside>
+  </div>
+  <script src="shell.js"></script>
+</body>
+</html>

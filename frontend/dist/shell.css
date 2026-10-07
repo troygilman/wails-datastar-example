@@ -1,0 +1,85 @@
+:root {
+  color-scheme: light;
+  --bg: #f3efe6;
+  --ink: #1d1a16;
+  --muted: #6b645b;
+  --line: #d9d1c3;
+  --panel: #fffdf8;
+  --accent: #2f5d50;
+}
+
+html,
+body {
+  height: 100%;
+  margin: 0;
+}
+
+body {
+  display: flex;
+  flex-direction: column;
+  background: var(--bg);
+  color: var(--ink);
+  font: 15px/1.45 ui-sans-serif, system-ui, sans-serif;
+}
+
+#shell-bar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 16px;
+  border-bottom: 1px solid var(--line);
+}
+
+#shell-status {
+  margin: 0;
+}
+
+#shell-signin {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  align-items: center;
+  margin: 0;
+}
+
+#shell-token {
+  font: inherit;
+  min-width: 16rem;
+  padding: 6px 8px;
+  border: 1px solid var(--line);
+  background: white;
+  color: inherit;
+}
+
+button {
+  font: inherit;
+  padding: 6px 10px;
+  border: 1px solid var(--accent);
+  background: var(--accent);
+  color: white;
+  cursor: pointer;
+}
+
+#app {
+  flex: 1;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 280px;
+  gap: 12px;
+  padding: 12px;
+  min-height: 0;
+}
+
+#panel-main,
+#panel-side {
+  background: var(--panel);
+  border: 1px solid var(--line);
+  padding: 16px;
+  min-height: 8rem;
+}
+
+#panel-main p,
+#panel-side p {
+  margin: 0;
+  color: var(--muted);
+}
