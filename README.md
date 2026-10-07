@@ -27,12 +27,35 @@ go build -tags production,webkit2_41 -o desktop-shell .
 
 `wails dev` rebuilds on change and still reads `DESKTOP_DEV_TOKEN`. A production build ignores that variable.
 
+## Server
+
+The desktop process does not include this server. `make run` starts the server, then the shell, and stops the server when the shell exits. The token defaults to `dev` and the address to `127.0.0.1:8080`.
+
+```bash
+make run
+make server   # server only
+make dev      # shell only, against that server
+```
+
+`make run TOKEN=secret ADDR=127.0.0.1:9090` changes both sides together. The same commands without Make:
+
+```bash
+go run ./cmd/server
+DESKTOP_DEV_TOKEN=dev wails dev
+```
+
+`DESKTOP_TOKEN` changes the bearer token the server accepts. `DESKTOP_ADDR` or `-addr` changes the listen address. Set `DESKTOP_API_BASE` on the shell when the server is not on `http://127.0.0.1:8080`, and set `DESKTOP_DEV_TOKEN` to the same value as `DESKTOP_TOKEN`.
+
+`GET /desktop/bootstrap` patches `#app` and sets `ready`, then closes the stream. `POST /desktop/ping` is the follow-up action on the Ping button. Both require `Authorization: Bearer`. A missing or wrong token is 401. The response reflects `Origin` only for `http://wails.localhost`, `https://wails.localhost`, and `wails://wails`.
+
 ## Configure
 
 | Variable | When it applies | Meaning |
 | --- | --- | --- |
-| `DESKTOP_API_BASE` | Always | Absolute `http` or `https` URL of the Datastar server. Default `http://127.0.0.1:8080`. |
-| `DESKTOP_DEV_TOKEN` | `wails dev`, and any build without the `production` tag | Bearer token used when the keychain has none. |
+| `DESKTOP_API_BASE` | Shell | Absolute `http` or `https` URL of the Datastar server. Default `http://127.0.0.1:8080`. |
+| `DESKTOP_DEV_TOKEN` | `wails dev`, and any shell build without the `production` tag | Bearer token used when the keychain has none. |
+| `DESKTOP_TOKEN` | Server | Bearer token the server accepts. Default `dev`. |
+| `DESKTOP_ADDR` | Server | Listen address. Default `:8080`. |
 
 If the keychain already holds a token, that value wins. Paste a token into the shell to store a new one. It is written to the OS keychain under service `wails-datastar-example`, user `bearer`.
 
@@ -63,6 +86,8 @@ Allow the page origin the webview actually sends. Wails v2 uses `wails://wails` 
 | --- | --- |
 | `main.go` | `wails.Run` and the embedded assets |
 | `app.go` | Bound `Session` and `SaveToken` |
+| `cmd/server` | Remote Datastar process |
+| `internal/server` | Bootstrap and ping handlers |
 | `frontend/dist/` | First frame, vendored `datastar.js`, shell CSS and script |
 | `internal/token` | Keychain get/set, with an in-memory store for tests |
 | `internal/session` | API base and token resolution |
@@ -71,4 +96,3 @@ Allow the page origin the webview actually sends. Wails v2 uses `wails://wails` 
 go test ./internal/...
 go test -tags production ./internal/...
 ```
-# wails-datastar-example
